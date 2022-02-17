@@ -26,7 +26,8 @@ export class AuthService {
 
   async login(payload: any) {
     const user = await this.usersService.findOne(payload.email);
-    const signPayload = { username: payload.email, sub: user.id };
+    const signPayload = { email: payload.email, id: user.id };
+    console.log(user)
     if (user) {
       return {
         access_token: this.jwtService.sign(
@@ -39,6 +40,7 @@ export class AuthService {
         ),
         email: user.email,
         id: user.id,
+        username: user.username
       };
     } else {
       return null;
@@ -46,7 +48,7 @@ export class AuthService {
   }
 
   async refreshAccessToken(payload: any) {
-    const signPayload = { username: payload.username, sub: payload.sub };
+    const signPayload = { email: payload.email, id: payload.id };
     return {
       access_token: this.jwtService.sign(
         { ...signPayload },
@@ -56,14 +58,16 @@ export class AuthService {
   }
 
   cookieExtractor(req, type) {
-    let token = null;
-    let decoded = null;
-    if (req && req.cookies) {
-      token = req.cookies[`${type}_token`];
-      decoded = this.jwtService.decode(token);
+    const getCookie = (type) => {
+      const match = req.handshake.query.cookies.match(new RegExp('(^| )' + `${type}_token` + '=([^;]+)'));
+      if (match) return match[2];
     }
+    let token = null;
+    let decoded;
+    if (req) {
+      token = 'cookies' in req ? req.cookies[`${type}_token`] : getCookie(type)
+    }
+    decoded = this.jwtService.decode(token);
     return { token, decoded };
   }
-
-
 }

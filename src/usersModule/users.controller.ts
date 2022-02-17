@@ -26,4 +26,12 @@ export class usersController {
     }
     throw new ForbiddenException();
   }
+
+  @Get('/allUsers')
+  getAllUsers(@Req() req) {
+    if (req.connection.remoteAddress === '::ffff:127.0.0.1') {
+      return this.usersService.getAllUsers();
+    }
+    throw new ForbiddenException();
+  }
 }

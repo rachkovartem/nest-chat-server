@@ -15,8 +15,9 @@ export class UsersService {
   ) {}
 
   createUser = async (item: CreateUserDto) => {
-    const exist = await this.usersRepository.find({ email: item.email });
-    if (exist.length === 0) {
+    const existEmail = await this.usersRepository.find({ email: item.email });
+    const existUsername = await this.usersRepository.find({ username: item.username });
+    if (existEmail.length === 0 || existUsername.length === 0) {
       const newItem: { password: string; username: string; registration: string; email: string } =
         { registration: '', ...item };
       newItem.password = await bcrypt.hash(item.password, 10);
@@ -35,5 +36,10 @@ export class UsersService {
 
   async getUserById(id: string) {
     return await this.usersRepository.findOne({ id });
+  }
+
+  async getAllUsers() {
+    const allUsers = await this.usersRepository.find();
+    return allUsers.map(user => ({id: user.id, username: user.username}))
   }
 }

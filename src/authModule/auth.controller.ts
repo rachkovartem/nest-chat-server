@@ -29,7 +29,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
   async login(@Res({ passthrough: true }) res, @Req() req) {
-    const { access_token, refresh_token, id, email } =
+    const { access_token, refresh_token, id, email, username } =
       await this.authService.login(req.body);
     res.cookie('access_token', access_token, {
       maxAge: jwtConstants.accessExpire,
@@ -37,7 +37,7 @@ export class AuthController {
     res.cookie('refresh_token', refresh_token, {
       maxAge: jwtConstants.refreshExpire,
     });
-    return { id, email };
+    return { id, email, username };
   }
 
   @UseGuards(JwtRefreshAuthGuard)
@@ -51,6 +51,7 @@ export class AuthController {
     return;
   }
 
+
   @UseGuards(JwtAuthGuard)
   @Get('/check')
   check(@Req() req) {
@@ -60,13 +61,12 @@ export class AuthController {
       return false;
     }
     const returnRes = async (type) => {
-      const { username, sub } = this.authService.cookieExtractor(
+      const { id } = this.authService.cookieExtractor(
         req,
         type,
       ).decoded;
-      const user = await this.userService.getUserById(sub);
-      console.log(user)
-      return { username, sub };
+      const { username, email } = await this.userService.getUserById(id);
+      return { id, username, email };
     };
     if (accessToken) {
       return returnRes('access');
