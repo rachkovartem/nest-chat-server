@@ -59,11 +59,13 @@ export class AuthController {
     if (!accessToken && !refreshToken) {
       return false;
     }
-    const returnRes = (type) => {
+    const returnRes = async (type) => {
       const { username, sub } = this.authService.cookieExtractor(
         req,
         type,
       ).decoded;
+      const user = await this.userService.getUserById(sub);
+      console.log(user)
       return { username, sub };
     };
     if (accessToken) {

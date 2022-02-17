@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './authModule/constants';
 import { AuthModule } from './authModule/auth.module';
 import { UsersModule } from './usersModule/users.module';
+import { ChatModule } from "./chatModule/chat.module";
 import { TypeOrmModule } from '@nestjs/typeorm';
 import config from './ormconfig';
 import { User } from './usersModule/user.entity';
@@ -16,6 +17,7 @@ import { User } from './usersModule/user.entity';
     TypeOrmModule.forRoot(config),
     AuthModule,
     UsersModule,
+    ChatModule,
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '86400s' },

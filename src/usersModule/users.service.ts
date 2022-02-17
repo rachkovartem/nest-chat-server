@@ -13,12 +13,11 @@ export class UsersService {
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
   ) {}
-  private users: any = [];
 
   createUser = async (item: CreateUserDto) => {
     const exist = await this.usersRepository.find({ email: item.email });
     if (exist.length === 0) {
-      const newItem: { password: string; registration: string; email: string } =
+      const newItem: { password: string; username: string; registration: string; email: string } =
         { registration: '', ...item };
       newItem.password = await bcrypt.hash(item.password, 10);
       newItem.registration = Date.now().toString();
