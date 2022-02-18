@@ -11,9 +11,9 @@ export class MessagesService {
     private messagesRepository: Repository<MessagesEntity>,
   ) {}
 
-  createMessage = async (roomId: string, payload: messagePayloadDto) => {
+  createMessage = async (payload: messagePayloadDto) => {
     const newMessage = await this.messagesRepository.create({
-      roomId,
+      roomId: payload.roomId,
       senderId: payload.id,
       senderUsername: payload.username,
       message: payload.message,
