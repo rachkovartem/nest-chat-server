@@ -1,4 +1,4 @@
-import {Injectable, Query, Req} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {CreateUserDto} from './createUser.dto';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository} from 'typeorm';
@@ -18,8 +18,8 @@ export class UsersService {
     const existEmail = await this.usersRepository.find({ email: item.email });
     const existUsername = await this.usersRepository.find({ username: item.username });
     if (existEmail.length === 0 || existUsername.length === 0) {
-      const newItem: { password: string; username: string; registration: string; email: string } =
-        { registration: '', ...item };
+      const newItem: { password: string; username: string; registration: string; email: string, imagePath: string } =
+        { registration: '', imagePath: '', ...item };
       newItem.password = await bcrypt.hash(item.password, 10);
       newItem.registration = Date.now().toString();
       const newUser = this.usersRepository.create(newItem);
@@ -39,7 +39,10 @@ export class UsersService {
   }
 
   async getAllUsers() {
-    const allUsers = await this.usersRepository.find();
-    return allUsers.map(user => ({id: user.id, username: user.username}))
+    return await this.usersRepository.find()
+  }
+
+  async updateUserImage(id: string, imagePath: string) {
+    return await this.usersRepository.update({ id }, { imagePath });
   }
 }

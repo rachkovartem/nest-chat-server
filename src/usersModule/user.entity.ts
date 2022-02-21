@@ -16,4 +16,7 @@ export class User {
 
   @Column()
   registration: string;
+
+  @Column()
+  imagePath: string;
 }
