@@ -4,10 +4,11 @@ import { usersController } from './users.controller';
 import { UsersService } from './users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {MulterModule} from "@nestjs/platform-express";
+import {FriendRequest} from "./friendRequest.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, FriendRequest]),
     MulterModule.register(
       {
         dest: './UsersImages',

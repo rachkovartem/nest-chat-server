@@ -12,6 +12,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import config from './ormconfig';
 import { User } from './usersModule/user.entity';
 import {RoomsModule} from "./roomsModule/rooms.module";
+import {FriendRequest} from "./usersModule/friendRequest.entity";
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import {RoomsModule} from "./roomsModule/rooms.module";
       signOptions: { expiresIn: '86400s' },
       secretOrPrivateKey: jwtConstants.secret,
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, FriendRequest]),
   ],
   controllers: [AppController],
   providers: [

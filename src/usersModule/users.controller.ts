@@ -48,6 +48,19 @@ export class usersController {
       res.sendFile(filename, { root: 'UsersImages'});
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('/friendRequest')
+  async friendRequest(@Body("id1") id1: string, @Body("id2") id2: string,) {
+    return await this.usersService.friendRequest(id1, id2)
+  }
+
+  @Post('/getRequests')
+  async getRequest(@Body('idsArr') idsArr: string[], @Body('id') id: string, @Req() req) {
+    if (req.connection.remoteAddress === '::ffff:127.0.0.1') {
+      return await this.usersService.getRequests(idsArr, id);
+    }
+  }
+
   @Get('/allUsers')
   getAllUsers(@Req() req) {
     if (req.connection.remoteAddress === '::ffff:127.0.0.1') {

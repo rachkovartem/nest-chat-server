@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable} from 'typeorm';
+import { FriendRequest } from './friendRequest.entity'
 
 @Entity('users')
 export class User {
@@ -16,6 +17,12 @@ export class User {
 
   @Column()
   registration: string;
+
+  @Column('simple-array')
+  friends: string[];
+
+  @Column('simple-array')
+  friendsRequests: string[];
 
   @Column()
   imagePath: string;
