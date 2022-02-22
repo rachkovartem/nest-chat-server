@@ -61,16 +61,18 @@ export class UsersService {
   }
 
   async friendRequest(idSender: string, idRecipient: string) {
-    const newReq = this.friendRequestRepository.create({userSenderId: idSender, userRecipientId: idRecipient, userRecipientStatus: false});
-    const res1 = await this.friendRequestRepository.find({ where: [
-        { userSenderId: idSender },
-        { userRecipientId: idRecipient },
-      ]})
-    const res2 = await this.friendRequestRepository.find({ where: [
-        { userSenderId: idRecipient },
-        { userRecipientId: idSender },
-      ]})
-    const res = [...res1, ...res2]
+    const newReq = this.friendRequestRepository
+      .create({
+        userSenderId: idSender,
+        userRecipientId: idRecipient,
+        userRecipientStatus: false
+      });
+    const res = await this.friendRequestRepository
+      .find({
+        userSenderId: idSender,
+        userRecipientId: idRecipient
+      });
+    console.log(res)
     if (res.length === 0) {
       const res = await this.friendRequestRepository.save(newReq);
       const user = await this.usersRepository.findOne({id: idSender});

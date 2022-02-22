@@ -50,8 +50,8 @@ export class usersController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/friendRequest')
-  async friendRequest(@Body("id1") id1: string, @Body("id2") id2: string,) {
-    return await this.usersService.friendRequest(id1, id2)
+  async friendRequest(@Body("idUser") idUser: string, @Body("idFriend") idFriend: string) {
+    return await this.usersService.friendRequest(idUser, idFriend)
   }
 
   @Post('/getRequests')
