@@ -7,13 +7,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './authModule/constants';
 import { AuthModule } from './authModule/auth.module';
 import { UsersModule } from './usersModule/users.module';
-import { MessagesModule } from "./messagesModule/messages.module";
+import { MessagesModule } from './messagesModule/messages.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import config from './ormconfig';
 import { User } from './usersModule/user.entity';
-import {RoomsModule} from "./roomsModule/rooms.module";
-import {FriendRequest} from "./usersModule/friendRequest.entity";
-
+import { RoomsModule } from './roomsModule/rooms.module';
+import { FriendRequest } from './usersModule/friendRequest.entity';
 
 @Module({
   imports: [
