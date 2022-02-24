@@ -16,6 +16,7 @@ import { CreateUserDto } from './createUser.dto';
 import { UsersService } from './users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../authModule/guards/jwt-auth.guard';
+import {User} from "./user.entity";
 
 @Controller()
 export class usersController {
@@ -35,6 +36,13 @@ export class usersController {
       return this.usersService.getUserById(id);
     }
     throw new ForbiddenException();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/removeFriend')
+  @UseInterceptors(FileInterceptor('file'))
+  async removeFriend(@Body('idUser') idUser: string, @Body('idFriend') idFriend: string,) {
+      return await this.usersService.removeFriend(idUser, idFriend)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -105,8 +113,11 @@ export class usersController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/findUser')
-  async findUser(@Query('option') option: string) {
-    return await this.usersService.findUser(option);
+  async findUser(@Query('option') option: string, @Query('id') id: string) {
+    if (option.length === 0) {
+      return []
+    }
+    return await this.usersService.findUser(option, id);
   }
 
   @Get('/allUsers')

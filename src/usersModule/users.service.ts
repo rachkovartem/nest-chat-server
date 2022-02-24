@@ -56,7 +56,9 @@ export class UsersService {
   }
 
   async getUserById(id: string) {
-    return await this.usersRepository.findOne({ id });
+    const user = await this.usersRepository.findOne({ id });
+    const objFriends = await Promise.all(user.friends.map(async id => await this.usersRepository.findOne({ id })));
+    return {...user, objFriends};
   }
 
   async getAllUsers() {
@@ -65,6 +67,22 @@ export class UsersService {
 
   async updateUserImage(id: string, imagePath: string) {
     return await this.usersRepository.update({ id }, { imagePath });
+  }
+
+  async removeFriend(idUser: string, idFriend: string) {
+    const user = await this.usersRepository.findOne({ id: idUser } );
+    const friend = await this.usersRepository.findOne({ id: idFriend } );
+    const resUser = await this.usersRepository
+      .update(
+        { id: idUser },
+        { friends: user.friends.filter(id => id !== idFriend) }
+      );
+    const resFriend = await this.usersRepository
+      .update(
+        { id: idFriend },
+        { friends: friend.friends.filter(id => id !== idUser) }
+      );
+    return {resUser, resFriend}
   }
 
   async friendRequest(idSender: string, idRecipient: string) {
@@ -76,7 +94,9 @@ export class UsersService {
       userSenderId: idRecipient,
       userRecipientId: idSender,
     });
-    if (res1.length === 0 && res2.length === 0) {
+    const sender = await this.usersRepository.findOne({id: idSender});
+    const res3 = sender.friends.some(id => id === idRecipient);
+    if (res1.length === 0 && res2.length === 0 && !res3) {
       const newReq = this.friendRequestRepository.create({
         userSenderId: idSender,
         userRecipientId: idRecipient,
@@ -98,6 +118,8 @@ export class UsersService {
       return 'requestExist';
     } else if (res2.length > 0) {
       return 'userAlreadySend';
+    } else if (res3) {
+      return 'userAlreadyFriend'
     }
   }
 
@@ -165,6 +187,7 @@ export class UsersService {
         ),
       },
     );
+    console.log(idFriend)
     const resUpdateFriend = await this.usersRepository.update(
       { id: idFriend },
       {
@@ -176,14 +199,13 @@ export class UsersService {
     return { resDelete, resUpdateUser, resUpdateFriend };
   }
 
-  async findUser(option: string) {
+  async findUser(option: string, id: string) {
     const res = await this.usersRepository.find({
       where: [
         { username: ILike(`%${option}%`) },
         { email: ILike(`%${option}%`) },
       ],
     });
-    console.log(res);
-    return res;
+    return res.filter(item => item.id !== id);
   }
 }
