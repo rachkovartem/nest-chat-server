@@ -22,6 +22,9 @@ export class User {
   friends: string[];
 
   @Column('simple-array')
+  groupRooms: string[];
+
+  @Column('simple-array')
   friendsRequests: string[];
 
   @Column()

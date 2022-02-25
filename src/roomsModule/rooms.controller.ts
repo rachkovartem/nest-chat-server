@@ -13,4 +13,10 @@ export class roomsController {
     const res = await this.roomsService.createRoom(participants);
     return res
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/rooms/createGroupRoom')
+  async createGroupRoom(@Body('members') members) {
+    return await this.roomsService.createGroupRoom(members);
+  }
 }

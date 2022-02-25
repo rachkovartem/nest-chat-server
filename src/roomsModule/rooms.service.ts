@@ -30,4 +30,23 @@ export class RoomsService {
     }
   }
 
+  async createGroupRoom(participants: {username: string, id: string}[]) {
+    if (participants.length < 3) {
+      return 'threeOrMore'
+    }
+    const participantsIds = participants.map(member => member.id).sort().toString();
+    const res = await this.roomsRepository.find({participants: participantsIds});
+    if (res.length === 0) {
+      const newRoom = this.roomsRepository.create({
+        participants: participantsIds,
+        creationDate: Date.now().toString()
+      });
+      return await this.roomsRepository.save(newRoom);
+    } else if (res.length === 1) {
+      return res[0]
+    } else {
+      console.log('error, found more then 1 room');
+      return 'smthWrong';
+    }
+  }
 }
