@@ -27,8 +27,8 @@ export class usersController {
     return this.usersService.createUser(user);
   }
 
-  @Get('/profile')
-  getProfileInfo(@Req() req, @Query('id') id) {
+  @Get('/getUserById')
+  getUserById(@Req() req, @Query('id') id) {
     if (
       req.connection.remoteAddress === '::ffff:127.0.0.1' ||
       req.connection.remoteAddress === '::1'

@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './createUser.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import {ILike, Like, Repository} from 'typeorm';
-import { User as UserEntity } from './user.entity';
-import { FriendRequest as FriendRequestEntity } from './friendRequest.entity';
+import {Injectable} from '@nestjs/common';
+import {CreateUserDto} from './createUser.dto';
+import {InjectRepository} from '@nestjs/typeorm';
+import {ILike, Repository} from 'typeorm';
+import {User as UserEntity} from './user.entity';
+import {FriendRequest as FriendRequestEntity} from './friendRequest.entity';
 import * as bcrypt from 'bcrypt';
+import {Room as RoomsEntity} from "../roomsModule/rooms.entity";
 
 export type User = any;
 
@@ -14,6 +15,7 @@ interface newItem {
   registration: string;
   email: string;
   imagePath: string;
+  groupRooms: string[];
   friends: string[];
   friendsRequests: string[];
 }
@@ -26,6 +28,9 @@ export class UsersService {
 
     @InjectRepository(FriendRequestEntity)
     private friendRequestRepository: Repository<FriendRequestEntity>,
+
+    @InjectRepository(RoomsEntity)
+    private roomsRepository: Repository<RoomsEntity>,
   ) {}
 
   createUser = async (item: CreateUserDto) => {
@@ -39,6 +44,7 @@ export class UsersService {
         imagePath: '',
         friends: [],
         friendsRequests: [],
+        groupRooms: [],
         ...item,
       };
       newItem.password = await bcrypt.hash(item.password, 10);
@@ -58,7 +64,14 @@ export class UsersService {
   async getUserById(id: string) {
     const user = await this.usersRepository.findOne({ id });
     const objFriends = await Promise.all(user.friends.map(async id => await this.usersRepository.findOne({ id })));
-    return {...user, objFriends};
+    const groupRooms = await Promise.all(user.groupRooms.map(async roomId => {
+      const groupChat = await this.roomsRepository.findOne({ roomId });
+      const groupChatUsers = await Promise.all(groupChat.participants.split(',').map(async (id) => {
+        return await this.usersRepository.findOne({id});
+      }))
+      return { ...groupChat, fullParticipants: groupChatUsers };
+    }))
+    return { ...user, objFriends, fullGroupRooms: groupRooms };
   }
 
   async getAllUsers() {

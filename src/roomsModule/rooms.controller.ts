@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Post, Req, UseGuards} from '@nestjs/common';
+import {Body, Controller, ForbiddenException, Get, Post, Req, UseGuards} from '@nestjs/common';
 import {RoomsService} from "./rooms.service";
 import {JwtAuthGuard} from "../authModule/guards/jwt-auth.guard";
 
@@ -18,5 +18,16 @@ export class roomsController {
   @Post('/rooms/createGroupRoom')
   async createGroupRoom(@Body('members') members) {
     return await this.roomsService.createGroupRoom(members);
+  }
+
+  @Post('/rooms/getRoomInfo')
+  async getRoomInfo(@Req() req, @Body('id') id) {
+    if (
+      req.connection.remoteAddress === '::ffff:127.0.0.1' ||
+      req.connection.remoteAddress === '::1'
+    ) {
+      return await this.roomsService.getRoomInfo(id);
+    }
+    throw new ForbiddenException();
   }
 }

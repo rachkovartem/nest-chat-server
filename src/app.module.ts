@@ -13,6 +13,7 @@ import config from './ormconfig';
 import { User } from './usersModule/user.entity';
 import { RoomsModule } from './roomsModule/rooms.module';
 import { FriendRequest } from './usersModule/friendRequest.entity';
+import {Room} from "./roomsModule/rooms.entity";
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { FriendRequest } from './usersModule/friendRequest.entity';
       signOptions: { expiresIn: '86400s' },
       secretOrPrivateKey: jwtConstants.secret,
     }),
-    TypeOrmModule.forFeature([User, FriendRequest]),
+    TypeOrmModule.forFeature([User, FriendRequest, Room]),
   ],
   controllers: [AppController],
   providers: [

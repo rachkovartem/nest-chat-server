@@ -5,15 +5,16 @@ import { UsersService } from './users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {MulterModule} from "@nestjs/platform-express";
 import {FriendRequest} from "./friendRequest.entity";
+import {Room} from "../roomsModule/rooms.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, FriendRequest]),
+    TypeOrmModule.forFeature([User, FriendRequest, Room]),
     MulterModule.register(
       {
         dest: './UsersImages',
       }
-    )
+    ),
   ],
   providers: [UsersService],
   controllers: [usersController],

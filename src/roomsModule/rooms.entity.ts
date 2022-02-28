@@ -9,5 +9,8 @@ export class Room {
   participants: string;
 
   @Column()
+  groupRoom: boolean;
+
+  @Column()
   creationDate: string;
 }
