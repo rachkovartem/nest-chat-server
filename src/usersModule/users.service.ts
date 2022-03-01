@@ -6,6 +6,7 @@ import {User as UserEntity} from './user.entity';
 import {FriendRequest as FriendRequestEntity} from './friendRequest.entity';
 import * as bcrypt from 'bcrypt';
 import {Room as RoomsEntity} from "../roomsModule/rooms.entity";
+import {Message as MessageEntity} from "../messagesModule/messages.entity";
 
 export type User = any;
 
@@ -31,6 +32,9 @@ export class UsersService {
 
     @InjectRepository(RoomsEntity)
     private roomsRepository: Repository<RoomsEntity>,
+
+    @InjectRepository(MessageEntity)
+    private messagesRepository: Repository<RoomsEntity>,
   ) {}
 
   createUser = async (item: CreateUserDto) => {
@@ -95,7 +99,18 @@ export class UsersService {
         { id: idFriend },
         { friends: friend.friends.filter(id => id !== idUser) }
       );
-    return {resUser, resFriend}
+    const room = await this.roomsRepository.findOne({participants: [idUser, idFriend].sort().toString()});
+    if (room) {
+      const messages = await this.messagesRepository.find({roomId: room.roomId});
+      await this.messagesRepository.remove(messages);
+      await this.roomsRepository.delete({roomId: room.roomId});
+    }
+    const userAfterDeleting = await this.getUserById(idUser);
+      if (resUser.affected === 1 && resFriend.affected === 1) {
+        return {text: 'friendDeleted', objFriends: userAfterDeleting.objFriends}
+      } else {
+        return 'smthWrong'
+      }
   }
 
   async friendRequest(idSender: string, idRecipient: string) {
@@ -126,7 +141,9 @@ export class UsersService {
         { id: idRecipient },
         { friendsRequests: [...recipient.friendsRequests, res.id] },
       );
-      return { resUpdateSender, resUpdateRecipient };
+      const senderResult = await this.usersRepository.findOne({ id: idSender });
+      const reqs = await this.getRequests(senderResult.friendsRequests, idSender);
+      return {text: 'reqSended', outReqs: reqs.outReqs};
     } else if (res1.length > 0) {
       return 'requestExist';
     } else if (res2.length > 0) {
@@ -159,7 +176,6 @@ export class UsersService {
         inReqs.push(result);
       }
     }
-
     return { inReqs, outReqs };
   }
 
@@ -185,7 +201,11 @@ export class UsersService {
         ),
       },
     );
-    return { resDelete, resUpdateUser, resUpdateFriend };
+    if (resDelete.affected === 1 && resUpdateUser.affected === 1 && resUpdateFriend.affected === 1) {
+      const user =  await this.getUserById(idUser);
+      const reqs = await this.getRequests(user.friendsRequests, idUser);
+      return {objFriends: user.objFriends, ...reqs}
+    } else return 'smthWrong'
   }
 
   async rejectFriendReq(idUser: string, idFriend: string, idReq: string) {
@@ -200,7 +220,6 @@ export class UsersService {
         ),
       },
     );
-    console.log(idFriend)
     const resUpdateFriend = await this.usersRepository.update(
       { id: idFriend },
       {
@@ -209,7 +228,13 @@ export class UsersService {
         ),
       },
     );
-    return { resDelete, resUpdateUser, resUpdateFriend };
+    if (resDelete.affected === 1 && resUpdateUser.affected === 1 && resUpdateFriend.affected === 1) {
+      const user =  await this.getUserById(idUser);
+      const reqs = await this.getRequests(user.friendsRequests, idUser);
+      return { ...reqs };
+    } else {
+      return 'smthWrong'
+    }
   }
 
   async findUser(option: string, id: string) {

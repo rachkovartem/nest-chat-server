@@ -62,7 +62,11 @@ export class RoomsService {
     const room = await this.roomsRepository.findOne({roomId});
     const participants = await Promise.all(room.participants.split(',').map(async id => {
       return await this.usersRepository.findOne({id})
-    }))
-    return {...room, participants}
+    }));
+    const avatars = {};
+    participants.forEach(user => {
+      avatars[user.id] = user.imagePath
+    })
+    return {...room, participants, avatars}
   }
 }

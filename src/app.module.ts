@@ -14,6 +14,7 @@ import { User } from './usersModule/user.entity';
 import { RoomsModule } from './roomsModule/rooms.module';
 import { FriendRequest } from './usersModule/friendRequest.entity';
 import {Room} from "./roomsModule/rooms.entity";
+import {Message} from "./messagesModule/messages.entity";
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import {Room} from "./roomsModule/rooms.entity";
       signOptions: { expiresIn: '86400s' },
       secretOrPrivateKey: jwtConstants.secret,
     }),
-    TypeOrmModule.forFeature([User, FriendRequest, Room]),
+    TypeOrmModule.forFeature([User, FriendRequest, Room, Message]),
   ],
   controllers: [AppController],
   providers: [
