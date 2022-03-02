@@ -42,7 +42,7 @@ export class UsersService {
     const existUsername = await this.usersRepository.find({
       username: item.username,
     });
-    if (existEmail.length === 0 || existUsername.length === 0) {
+    if (existEmail.length === 0 && existUsername.length === 0) {
       const newItem: newItem = {
         registration: '',
         imagePath: '',

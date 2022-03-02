@@ -16,8 +16,8 @@ export class roomsController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/rooms/createGroupRoom')
-  async createGroupRoom(@Body('members') members) {
-    return await this.roomsService.createGroupRoom(members);
+  async createGroupRoom(@Body('members') members, @Body('idUser') idUser) {
+    return await this.roomsService.createGroupRoom(members, idUser);
   }
 
   @Post('/rooms/getRoomInfo')

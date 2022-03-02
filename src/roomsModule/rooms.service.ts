@@ -3,11 +3,13 @@ import {Room as RoomsEntity} from './rooms.entity';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Injectable} from "@nestjs/common";
 import {User as UserEntity} from "../usersModule/user.entity";
+import {UsersService} from "../usersModule/users.service";
 
 
 @Injectable()
 export class RoomsService {
   constructor(
+    private readonly usersService: UsersService,
     @InjectRepository(RoomsEntity)
     private roomsRepository: Repository<RoomsEntity>,
     @InjectRepository(UserEntity)
@@ -31,12 +33,14 @@ export class RoomsService {
     }
   }
 
-  async createGroupRoom(participants: {username: string, id: string}[]) {
+  async createGroupRoom(participants: {username: string, id: string}[], idUser: string) {
     if (participants.length < 3) {
       return 'threeOrMore'
     }
     const participantsIds = participants.map(member => member.id).sort().toString();
     const res = await this.roomsRepository.find({participants: participantsIds});
+    console.log(participantsIds)
+    console.log('res', res)
     if (res.length === 0) {
       const newRoom = await this.roomsRepository.create({
         participants: participantsIds,
@@ -49,9 +53,12 @@ export class RoomsService {
         const newRooms = [...profile.groupRooms, roomRes.roomId];
         await this.usersRepository.update({id: user.id}, { groupRooms: newRooms})
       }))
-      return roomRes;
-    } else if (res.length === 1) {
+      const userAfterUpdate = await this.usersService.getUserById(idUser);
+      return {roomRes, fullGroupRooms: userAfterUpdate.fullGroupRooms};
+    } else if (res.length === 1 && !res[0].groupRoom) {
       return res[0]
+    } else if (res.length === 1 && res[0].groupRoom) {
+      return 'groupAlreadyExists'
     } else {
       console.log('error, found more then 1 room');
       return 'smthWrong';
