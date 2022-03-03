@@ -20,6 +20,12 @@ export class roomsController {
     return await this.roomsService.createGroupRoom(members, idUser);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('/rooms/getAllRoomsIds')
+  async getAllRoomsIds(@Body('idUser') idUser) {
+    return await this.roomsService.getAllRoomsIds(idUser);
+  }
+
   @Post('/rooms/getRoomInfo')
   async getRoomInfo(@Req() req, @Body('id') id) {
     if (

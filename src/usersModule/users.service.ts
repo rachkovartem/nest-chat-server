@@ -7,6 +7,7 @@ import {FriendRequest as FriendRequestEntity} from './friendRequest.entity';
 import * as bcrypt from 'bcrypt';
 import {Room as RoomsEntity} from "../roomsModule/rooms.entity";
 import {Message as MessageEntity} from "../messagesModule/messages.entity";
+import * as fs from "fs";
 
 export type User = any;
 
@@ -83,7 +84,16 @@ export class UsersService {
   }
 
   async updateUserImage(id: string, imagePath: string) {
-    return await this.usersRepository.update({ id }, { imagePath });
+    const user = await this.getUserById(id);
+    if (user.imagePath) {
+      try {
+        fs.unlinkSync(user.imagePath);
+        return await this.usersRepository.update({ id }, { imagePath });
+      }
+      catch (error) {
+         return 'smthWrong'
+      }
+    }
   }
 
   async removeFriend(idUser: string, idFriend: string) {

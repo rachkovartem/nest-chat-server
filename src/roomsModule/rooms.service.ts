@@ -65,6 +65,21 @@ export class RoomsService {
     }
   }
 
+  async getAllRoomsIds(idUser: string) {
+    const user = await this.usersRepository.findOne({id: idUser});
+    const roomsIds = [];
+    await Promise.all(user.friends.map(async idFriend => {
+      const room = await this.roomsRepository.findOne({
+        participants: [idUser, idFriend].sort().toString()
+      })
+      if (room) {
+        roomsIds.push(room.roomId);
+      }
+    }));
+    return roomsIds.concat(user.groupRooms)
+
+  }
+
   async getRoomInfo(roomId: string) {
     const room = await this.roomsRepository.findOne({roomId});
     const participants = await Promise.all(room.participants.split(',').map(async id => {
