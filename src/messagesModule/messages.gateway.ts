@@ -11,6 +11,7 @@ import {Logger, Req} from "@nestjs/common";
 import {messagePayloadDto} from "./messagePayload.dto";
 import {JwtAuthGuard} from "../authModule/guards/jwt-auth.guard";
 import {UseGuards} from "@nestjs/common";
+import {UsersService} from "../usersModule/users.service";
 
 @WebSocketGateway({
   cors: {
@@ -18,12 +19,16 @@ import {UseGuards} from "@nestjs/common";
   },
 })
 export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private readonly messagesService: MessagesService) {
+  constructor(
+    private readonly messagesService: MessagesService,
+    private readonly usersService: UsersService
+  ) {
   }
 
   @WebSocketServer()
   server: Server;
   private logger: Logger = new Logger('ChatGateway');
+  private online = [];
 
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('system:connect')
@@ -36,9 +41,11 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   @SubscribeMessage('messages:add')
   async handleMessage(client: Socket, payload: messagePayloadDto) {
     const result = await this.messagesService.createMessage(payload);
-    this.server.to(payload.roomId).emit('messages:add', [{...result}]);
+    const sender = await this.usersService.getUserById(result.senderId);
+    this.server.to(payload.roomId).emit('messages:add', [{...result, senderAvatar: sender.imagePath}]);
   }
 
+  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('messages:get')
   async getMessage(client: Socket, payload) {
     const messages = await this.messagesService.getAllRoomMessages(payload.roomId);
@@ -49,12 +56,28 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     this.logger.log('Init');
   }
 
-  handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
+  async handleDisconnect(client: Socket) {
+    const clientId = client.handshake.query.id;
+    const user = await this.usersService.getUserById(clientId.toString());
+    if (this.online.includes(clientId)) {
+      this.online.splice(this.online.indexOf(clientId), 1);
+    }
+    user.friends.map(id => this.server.to(id).emit('friends:wentOffline', clientId))
   }
 
   @UseGuards(JwtAuthGuard)
   async handleConnection(client: Socket, ...args: any[]) {
-    this.logger.log(`Client connected: ${client.id}`);
+    const clientId = client.handshake.query.id;
+    client.join(clientId);
+    const user = await this.usersService.getUserById(clientId.toString());
+    if (user) {
+      const friendsOnline = user.friends.filter(friendId => this.online.some(id => id === friendId));
+      this.server.to(clientId).emit('friends:online', friendsOnline)
+    }
+    this.logger.log(`Client connected: ${clientId}`);
+    if (!this.online.includes(clientId)) {
+      this.online.push(clientId);
+    }
+    user.friends.map(id => this.server.to(id).emit('friends:wentOnline', clientId))
   }
 }
