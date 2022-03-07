@@ -15,6 +15,7 @@ import { RoomsModule } from './roomsModule/rooms.module';
 import { FriendRequest } from './usersModule/friendRequest.entity';
 import {Room} from "./roomsModule/rooms.entity";
 import {Message} from "./messagesModule/messages.entity";
+import {MessagesService} from "./messagesModule/messages.service";
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import {Message} from "./messagesModule/messages.entity";
   providers: [
     AppService,
     AuthService,
-    UsersService,
+    UsersService
   ],
 })
 export class AppModule {}

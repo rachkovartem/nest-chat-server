@@ -6,9 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {User} from "../usersModule/user.entity";
 import {UsersService} from "../usersModule/users.service";
 import {UsersModule} from "../usersModule/users.module";
+import {MessagesModule} from "../messagesModule/messages.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Room, User]), UsersModule],
+  imports: [TypeOrmModule.forFeature([Room, User]), UsersModule, MessagesModule],
   providers: [RoomsService],
   controllers: [roomsController],
   exports: [RoomsService],

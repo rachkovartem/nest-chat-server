@@ -4,12 +4,14 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Injectable} from "@nestjs/common";
 import {User as UserEntity} from "../usersModule/user.entity";
 import {UsersService} from "../usersModule/users.service";
+import {MessagesService} from "../messagesModule/messages.service";
 
 
 @Injectable()
 export class RoomsService {
   constructor(
     private readonly usersService: UsersService,
+    private readonly messagesService: MessagesService,
     @InjectRepository(RoomsEntity)
     private roomsRepository: Repository<RoomsEntity>,
     @InjectRepository(UserEntity)
@@ -39,8 +41,6 @@ export class RoomsService {
     }
     const participantsIds = participants.map(member => member.id).sort().toString();
     const res = await this.roomsRepository.find({participants: participantsIds});
-    console.log(participantsIds)
-    console.log('res', res)
     if (res.length === 0) {
       const newRoom = await this.roomsRepository.create({
         participants: participantsIds,
@@ -90,5 +90,33 @@ export class RoomsService {
       avatars[user.id] = user.imagePath
     })
     return {...room, participants, avatars}
+  }
+
+  async getLastMessages(roomsIds: string[], friendsIds: string[], userId: string) {
+    const lastMessages = {};
+    const friendRooms = friendsIds.map(id => [id, userId].sort().toString())
+    await Promise.all(roomsIds.map(async id => {
+      const messages = await this.messagesService.getAllRoomMessages(id);
+      if (messages.length > 1) {
+        lastMessages[id] = messages.sort((a, b) => Number(a.sendingDate) - Number(b.sendingDate))[messages.length - 1];
+      } else if (messages.length === 1) {
+        lastMessages[id] = messages[0];
+      } else {
+        lastMessages[id] = {message: null};
+      }
+    }))
+    await Promise.all(friendRooms.map(async id => {
+      const messages = await this.messagesService.getAllRoomMessages(id);
+      const lastMessage = messages.sort((a, b) => Number(a.sendingDate) - Number(b.sendingDate))[messages.length - 1];
+      if (messages.length > 1) {
+        lastMessages[lastMessage.senderId] = lastMessage;
+      } else if (messages.length === 1) {
+        lastMessages[lastMessage.senderId] = lastMessage;
+      } else {
+        const friendId = id.split(',').filter(friendId => friendId !== userId)
+        lastMessages[friendId.toString()] = {message: null};
+      }
+    }))
+    return lastMessages;
   }
 }
