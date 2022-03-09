@@ -35,7 +35,7 @@ export class UsersService {
     private roomsRepository: Repository<RoomsEntity>,
 
     @InjectRepository(MessageEntity)
-    private messagesRepository: Repository<RoomsEntity>,
+    private messagesRepository: Repository<MessageEntity>,
   ) {}
 
   createUser = async (item: CreateUserDto) => {
@@ -76,7 +76,21 @@ export class UsersService {
       }))
       return { ...groupChat, fullParticipants: groupChatUsers };
     }))
-    return { ...user, objFriends, fullGroupRooms: groupRooms };
+    const friendsRoomsIds = {};
+    await Promise.all(user.friends.map(async friendId => {
+      const participants = [friendId, id].sort().toString();
+      const room = await this.roomsRepository.findOne({participants})
+      friendsRoomsIds[friendId] = room ? room.roomId : null
+    }))
+    const friendsRooms = objFriends
+      .map(friend => {
+      const obj = {...friend, roomId: '', groupRoom: false}
+      obj.roomId = friendsRoomsIds[friend.id]
+      return obj
+    })
+      .filter(room => room.id !== id)
+    const fullRooms = [...friendsRooms, ...groupRooms]
+    return { ...user, objFriends, fullGroupRooms: groupRooms, friendsRoomsIds, fullRooms };
   }
 
   async getAllUsers() {

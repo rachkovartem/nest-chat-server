@@ -92,10 +92,10 @@ export class RoomsService {
     return {...room, participants, avatars}
   }
 
-  async getLastMessages(roomsIds: string[], friendsIds: string[], userId: string) {
+  async getLastMessages(userId: string) {
+    const user = await this.usersService.getUserById(userId);
     const lastMessages = {};
-    const friendRooms = friendsIds.map(id => [id, userId].sort().toString())
-    await Promise.all(roomsIds.map(async id => {
+    await Promise.all(user.groupRooms.map(async id => {
       const messages = await this.messagesService.getAllRoomMessages(id);
       if (messages.length > 1) {
         lastMessages[id] = messages.sort((a, b) => Number(a.sendingDate) - Number(b.sendingDate))[messages.length - 1];
@@ -104,17 +104,19 @@ export class RoomsService {
       } else {
         lastMessages[id] = {message: null};
       }
-    }))
-    await Promise.all(friendRooms.map(async id => {
-      const messages = await this.messagesService.getAllRoomMessages(id);
+    }));
+    const friendRoomsParticipants = user.friends.map(id => [id, userId].sort().toString())
+    await Promise.all(friendRoomsParticipants.map(async participants => {
+      const room = await this.roomsRepository.findOne({participants});
+      if (!room) return null
+      const messages = await this.messagesService.getAllRoomMessages(room.roomId);
       const lastMessage = messages.sort((a, b) => Number(a.sendingDate) - Number(b.sendingDate))[messages.length - 1];
       if (messages.length > 1) {
-        lastMessages[lastMessage.senderId] = lastMessage;
+        lastMessages[room.roomId] = lastMessage;
       } else if (messages.length === 1) {
-        lastMessages[lastMessage.senderId] = lastMessage;
+        lastMessages[room.roomId] = lastMessage;
       } else {
-        const friendId = id.split(',').filter(friendId => friendId !== userId)
-        lastMessages[friendId.toString()] = {message: null};
+        lastMessages[room.roomId] = {message: null};
       }
     }))
     return lastMessages;

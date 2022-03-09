@@ -29,10 +29,8 @@ export class roomsController {
   @UseGuards(JwtAuthGuard)
   @Post('/rooms/getLastMessages')
   async getLastMessages(
-    @Body('roomsIds') roomsIds,
-    @Body('friendsIds') friendsIds,
     @Body('userId') userId) {
-    return await this.roomsService.getLastMessages(roomsIds, friendsIds, userId);
+    return await this.roomsService.getLastMessages(userId);
   }
 
   @Post('/rooms/getRoomInfo')

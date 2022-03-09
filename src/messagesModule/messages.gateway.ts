@@ -58,6 +58,7 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
   async handleDisconnect(client: Socket) {
     const clientId = client.handshake.query.id;
+    this.logger.log(`Client disconnected: ${clientId}`);
     const user = await this.usersService.getUserById(clientId.toString());
     if (this.online.includes(clientId)) {
       this.online.splice(this.online.indexOf(clientId), 1);
