@@ -33,6 +33,13 @@ export class roomsController {
     return await this.roomsService.getLastMessages(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('/rooms/getAllUserRooms')
+  async getAllUserRooms(
+    @Body('userId') userId) {
+    return await this.roomsService.getAllUserRooms(userId);
+  }
+
   @Post('/rooms/getRoomInfo')
   async getRoomInfo(@Req() req, @Body('id') id) {
     if (

@@ -121,4 +121,42 @@ export class RoomsService {
     }))
     return lastMessages;
   }
+
+  async getAllUserRooms(id: string) {
+    const user = await this.usersRepository.findOne({ id });
+    const objFriends = await Promise.all(user.friends.map(async id => await this.usersRepository.findOne({ id })));
+    const groupRooms = await Promise.all(user.groupRooms.map(async roomId => {
+      const groupChat = await this.roomsRepository.findOne({ roomId });
+      const groupChatUsers = await Promise.all(groupChat.participants.split(',').map(async (id) => {
+        return await this.usersRepository.findOne({id});
+      }))
+      return { ...groupChat, fullParticipants: groupChatUsers };
+    }))
+    const friendsRoomsIds = {};
+    await Promise.all(user.friends.map(async friendId => {
+      const participants = [friendId, id].sort().toString();
+      const room = await this.roomsRepository.findOne({participants})
+      friendsRoomsIds[friendId] = room ? room.roomId : null
+    }))
+    const friendsRooms = objFriends
+      .map(friend => {
+        const obj = {...friend, roomId: '', groupRoom: false}
+        obj.roomId = friendsRoomsIds[friend.id]
+        return obj
+      })
+      .filter(room => room.id !== id)
+    const lastMessages = await this.getLastMessages(id);
+    const rooms = [...friendsRooms, ...groupRooms].map(room => {
+      const newRoom = {...room, lastMessage: ''}
+      newRoom.lastMessage = lastMessages[newRoom.roomId];
+      return newRoom
+    });
+    return rooms.sort((a: any, b: any) => {
+      const aDate = lastMessages[a.roomId].sendingDate || 0;
+      const bDate = lastMessages[b.roomId].sendingDate || 0;
+      if (b.roomId in lastMessages) {
+        return (Number(bDate) - Number(aDate))
+      } else {return 0}
+    })
+  }
 }

@@ -82,15 +82,7 @@ export class UsersService {
       const room = await this.roomsRepository.findOne({participants})
       friendsRoomsIds[friendId] = room ? room.roomId : null
     }))
-    const friendsRooms = objFriends
-      .map(friend => {
-      const obj = {...friend, roomId: '', groupRoom: false}
-      obj.roomId = friendsRoomsIds[friend.id]
-      return obj
-    })
-      .filter(room => room.id !== id)
-    const fullRooms = [...friendsRooms, ...groupRooms]
-    return { ...user, objFriends, fullGroupRooms: groupRooms, friendsRoomsIds, fullRooms };
+    return { ...user, objFriends, fullGroupRooms: groupRooms, friendsRoomsIds };
   }
 
   async getAllUsers() {
