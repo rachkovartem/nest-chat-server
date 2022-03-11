@@ -46,10 +46,11 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   }
 
   @UseGuards(JwtAuthGuard)
-  @SubscribeMessage('messages:get')
+  @SubscribeMessage(`messages:get`)
   async getMessage(client: Socket, payload) {
+    const clientId = client.handshake.query.id;
     const messages = await this.messagesService.getAllRoomMessages(payload.roomId);
-    this.server.to(payload.roomId).emit('messages:get', [...messages]);
+    this.server.to(payload.roomId).emit(`messages:get${clientId}`, [...messages]);
   }
 
   afterInit(server: Server) {
