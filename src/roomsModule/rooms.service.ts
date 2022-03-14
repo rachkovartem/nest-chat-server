@@ -82,6 +82,7 @@ export class RoomsService {
 
   async getRoomInfo(roomId: string) {
     const room = await this.roomsRepository.findOne({roomId});
+    if (!room) return null
     const participants = await Promise.all(room.participants.split(',').map(async id => {
       return await this.usersRepository.findOne({id})
     }));

@@ -53,6 +53,25 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     this.server.to(payload.roomId).emit(`messages:get${clientId}`, [...messages]);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('messages:getLastMessages')
+  async getLastMessages(client: Socket) {
+    const clientId = client.handshake.query.id;
+    const messages = await this.messagesService.getLastMessages(clientId.toString())
+    this.server.to(clientId).emit(`messages:getLastMessages${clientId}`, messages);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('friends:online')
+  async getFriendsOnline(client: Socket) {
+    const clientId = client.handshake.query.id;
+    client.join(clientId);
+    const user = await this.usersService.getUserById(clientId.toString());
+    const friendsOnline = user.friends.filter(friendId => this.online.some(id => id === friendId));
+    this.server.to(clientId).emit('friends:online', friendsOnline);
+  }
+
+
   afterInit(server: Server) {
     this.logger.log('Init');
   }
@@ -72,10 +91,6 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     const clientId = client.handshake.query.id;
     client.join(clientId);
     const user = await this.usersService.getUserById(clientId.toString());
-    if (user) {
-      const friendsOnline = user.friends.filter(friendId => this.online.some(id => id === friendId));
-      this.server.to(clientId).emit('friends:online', friendsOnline)
-    }
     this.logger.log(`Client connected: ${clientId}`);
     if (!this.online.includes(clientId)) {
       this.online.push(clientId);
