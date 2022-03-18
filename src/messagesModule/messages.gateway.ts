@@ -12,6 +12,7 @@ import {messagePayloadDto} from "./messagePayload.dto";
 import {JwtAuthGuard} from "../authModule/guards/jwt-auth.guard";
 import {UseGuards} from "@nestjs/common";
 import {UsersService} from "../usersModule/users.service";
+import {RoomsService} from "../roomsModule/rooms.service";
 
 @WebSocketGateway({
   cors: {
@@ -21,7 +22,7 @@ import {UsersService} from "../usersModule/users.service";
 export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly messagesService: MessagesService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
   ) {
   }
 
@@ -32,9 +33,17 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('system:connect')
-  async connection(client: Socket, payload) {
-    client.join(payload.roomId);
-    this.server.to(payload.roomId).emit('system:connected', `User ${payload.id} connected to room ${payload.roomId}`)
+  async connection(client: Socket) {
+    const clientId = client.handshake.query.id;
+    const user = await this.usersService.getUserById(clientId.toString());
+    const friendsOnline = user.friends.filter(friendId => this.online.some(id => id === friendId));
+    this.server.to(clientId).emit('friends:online', friendsOnline);
+    user.groupRooms.forEach(id => client.join(id))
+    user.friends.forEach(id => {
+      if (user.friendsRoomsIds[id]) {
+        client.join(user.friendsRoomsIds[id])
+      }
+    })
   }
 
   @UseGuards(JwtAuthGuard)
@@ -42,7 +51,7 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   async handleMessage(client: Socket, payload: messagePayloadDto) {
     const result = await this.messagesService.createMessage(payload);
     const sender = await this.usersService.getUserById(result.senderId);
-    this.server.to(payload.roomId).emit('messages:add', [{...result, senderAvatar: sender.imagePath}]);
+    this.server.to(payload.roomId).emit(`messages:add`, [{...result, senderAvatar: sender.imagePath}]);
   }
 
   @UseGuards(JwtAuthGuard)
