@@ -1,10 +1,5 @@
 import { ConnectionOptions } from 'typeorm';
-import * as PostgressConnectionStringParser from "pg-connection-string";
-import {PostgresConnectionOptions} from "typeorm/driver/postgres/PostgresConnectionOptions";
-
-const databaseUrl: string = process.env.DATABASE_URL;
-console.log(databaseUrl)
-const connectionOptions = PostgressConnectionStringParser.parse(databaseUrl);
+console.log(process.env.npm_lifecycle_event)
 const config: ConnectionOptions = process.env.npm_lifecycle_event === 'start:dev' ? {
   type: 'postgres',
   host: 'localhost',
@@ -20,11 +15,11 @@ const config: ConnectionOptions = process.env.npm_lifecycle_event === 'start:dev
   },
 } : {
   type: 'postgres',
-  host: connectionOptions.host,
-  port: connectionOptions.port,
-  username: connectionOptions.user,
-  password: connectionOptions.password,
-  database: connectionOptions.database,
+  host: 'ec2-54-76-249-45.eu-west-1.compute.amazonaws.com',
+  port: 5432,
+  username: 'kxsbfojdzhmzpx',
+  password: '5dfcdfcfa54be27f6b5da031ea35cbd304229ff19d3dc24ae46bca205f47a6fc',
+  database: 'dep5ke4na717s0',
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
   synchronize: true,
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
