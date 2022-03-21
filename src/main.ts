@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: ['http://localhost:3000', 'https://nextchat-app.herokuapp.com'],
   credentials: true,
   optionSuccessStatus: 200,
 };

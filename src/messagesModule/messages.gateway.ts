@@ -12,7 +12,6 @@ import {messagePayloadDto} from "./messagePayload.dto";
 import {JwtAuthGuard} from "../authModule/guards/jwt-auth.guard";
 import {UseGuards} from "@nestjs/common";
 import {UsersService} from "../usersModule/users.service";
-import {RoomsService} from "../roomsModule/rooms.service";
 
 @WebSocketGateway({
   cors: {
