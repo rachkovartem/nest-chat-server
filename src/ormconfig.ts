@@ -7,6 +7,9 @@ const config: ConnectionOptions = process.env.DATABASE_URL ? {
   url: process.env.DATABASE_URL,
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
   synchronize: true,
+  extra: {
+    ssl: true,
+  },
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   cli: {
     migrationsDir: 'src/migrations',
