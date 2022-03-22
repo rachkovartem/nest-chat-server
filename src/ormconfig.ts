@@ -9,9 +9,7 @@ const config: ConnectionOptions = process.env.DATABASE_URL ? {
   synchronize: true,
   extra: {
     ssl: true,
-  },
-  ssl: {
-    rejectUnauthorized: false
+    rejectUnauthorized: false,
   },
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   cli: {
