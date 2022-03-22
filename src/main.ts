@@ -15,9 +15,11 @@ const corsOptions = {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use(cors());
   app.enableCors(corsOptions);
   app.use(cookieParser());
   app.use( (req, res, next) => {
+    console.log(res)
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
     res.header('Access-Control-Allow-Origin', 'Content-Type, Accept');
