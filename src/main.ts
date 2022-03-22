@@ -4,10 +4,10 @@ import * as cookieParser from 'cookie-parser';
 const cors = require('cors')
 
 const corsOptions = {
-  origin: ['https://nextchat-app.herokuapp.com', 'http://localhost:3000', '193.176.84.208'],
+  // origin: ['https://nextchat-app.herokuapp.com', 'http://localhost:3000', '193.176.84.208'],
   credentials: true,
   optionSuccessStatus: 200,
-  // origin: "*",
+  origin: true,
   // methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
   // preflightContinue: false,
   // optionsSuccessStatus: 204,
