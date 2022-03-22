@@ -32,13 +32,13 @@ export class AuthController {
     const { access_token, refresh_token, id, email, username } =
       await this.authService.login(req.body);
     res.cookie('access_token', access_token, {
-      maxAge: jwtConstants.accessExpire,
+      maxAge: jwtConstants.accessExpire
     });
     res.cookie('refresh_token', refresh_token, {
-      maxAge: jwtConstants.refreshExpire,
+      maxAge: jwtConstants.refreshExpire
     });
-    console.log('server-res', res)
-    return { id, email, username };
+
+    return { id, email, username, access_token, access_token_expire: jwtConstants.accessExpire,  refresh_token, refresh_token_expire: jwtConstants.refreshExpire };
   }
 
   @UseGuards(JwtRefreshAuthGuard)
@@ -47,9 +47,9 @@ export class AuthController {
     const user = this.authService.cookieExtractor(req, 'refresh').decoded;
     const { access_token } = await this.authService.refreshAccessToken(user);
     res.cookie('access_token', access_token, {
-      maxAge: jwtConstants.accessExpire,
+      maxAge: jwtConstants.accessExpire
     });
-    return;
+    return { access_token };
   }
 
 
