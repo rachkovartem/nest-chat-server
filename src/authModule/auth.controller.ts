@@ -37,6 +37,7 @@ export class AuthController {
     res.cookie('refresh_token', refresh_token, {
       maxAge: jwtConstants.refreshExpire,
     });
+    console.log(res)
     return { id, email, username };
   }
 
