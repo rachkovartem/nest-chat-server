@@ -13,9 +13,9 @@ const corsOptions = {
 };
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   app.enableCors(corsOptions);
   app.use(cookieParser());
-  await app.listen(process.env.PORT || 8080);
+  await app.listen(process.env.PORT || 8080, function () {console.log("Express server listening on port %d in %s mode", this.address().port)} );
 }
 bootstrap();
