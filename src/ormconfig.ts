@@ -10,6 +10,9 @@ const config: ConnectionOptions = process.env.DATABASE_URL ? {
   extra: {
     ssl: true,
   },
+  ssl: {
+    rejectUnauthorized: false
+  },
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   cli: {
     migrationsDir: 'src/migrations',
