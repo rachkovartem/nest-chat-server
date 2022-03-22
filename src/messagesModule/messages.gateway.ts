@@ -16,6 +16,8 @@ import {UsersService} from "../usersModule/users.service";
 @WebSocketGateway({
   cors: {
     origin: '*',
+    credentials: true,
+    serveClient: false,
   },
 })
 export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
