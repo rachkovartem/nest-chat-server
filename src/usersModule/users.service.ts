@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt';
 import {Room as RoomsEntity} from "../roomsModule/rooms.entity";
 import {Message as MessageEntity} from "../messagesModule/messages.entity";
 import * as fs from "fs";
+import ImageKit from "imagekit";
 
 export type User = any;
 
@@ -89,7 +90,7 @@ export class UsersService {
     return await this.usersRepository.find();
   }
 
-  async updateUserImage(id: string, imagePath: string) {
+  async updateUserImage(id: string, imagePath: string, imagekit: ImageKit) {
       try {
         const updateRes = await this.usersRepository.update({ id }, { imagePath });
         console.log(updateRes)

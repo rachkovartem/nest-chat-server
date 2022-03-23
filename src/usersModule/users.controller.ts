@@ -73,8 +73,8 @@ export class usersController {
 
       const res = await this.usersService.updateUserImage(
         req.user.id,
-        imagekitRes.url
-        // file.path,
+        imagekitRes.url,
+        imagekit
       );
       return { path: imagekitRes.url, result: res };
     }
