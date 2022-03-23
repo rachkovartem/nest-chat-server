@@ -29,10 +29,10 @@ export class usersController {
 
   @Get('/getUserById')
   getUserById(@Req() req, @Query('id') id) {
-    console.log(req.connection.remoteAddress)
+    const headers = 'headers' in req ? req.headers : req.handshake.headers
     if (
-      req.connection.remoteAddress === '::ffff:127.0.0.1' ||
-      req.connection.remoteAddress === '::1'
+      headers.host === 'localhost:8080' ||
+      headers.host === 'nestchat-server.herokuapp.com'
     ) {
       return this.usersService.getUserById(id);
     }
@@ -103,9 +103,10 @@ export class usersController {
     @Body('userId') userId: string,
     @Req() req,
   ) {
+    const headers = 'headers' in req ? req.headers : req.handshake.headers
     if (
-      req.connection.remoteAddress === '::ffff:127.0.0.1' ||
-      req.connection.remoteAddress === '::1'
+      headers.host === 'localhost:8080' ||
+      headers.host === 'nestchat-server.herokuapp.com'
     ) {
       return await this.usersService.getRequests(friendReqsArr, userId);
     }
@@ -122,9 +123,10 @@ export class usersController {
 
   @Get('/allUsers')
   getAllUsers(@Req() req) {
+    const headers = 'headers' in req ? req.headers : req.handshake.headers
     if (
-      req.connection.remoteAddress === '::ffff:127.0.0.1' ||
-      req.connection.remoteAddress === '::1'
+      headers.host === 'localhost:8080' ||
+      headers.host === 'nestchat-server.herokuapp.com'
     ) {
       return this.usersService.getAllUsers();
     }

@@ -42,9 +42,10 @@ export class roomsController {
 
   @Post('/rooms/getRoomInfo')
   async getRoomInfo(@Req() req, @Body('id') id) {
+    const headers = 'headers' in req ? req.headers : req.handshake.headers
     if (
-      req.connection.remoteAddress === '::ffff:127.0.0.1' ||
-      req.connection.remoteAddress === '::1'
+      headers.host === 'localhost:8080' ||
+      headers.host === 'nestchat-server.herokuapp.com'
     ) {
       return await this.roomsService.getRoomInfo(id);
     }
