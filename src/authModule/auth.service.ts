@@ -57,16 +57,19 @@ export class AuthService {
   }
 
   cookieExtractor(req, type) {
-    const getCookie = (type) => {
-      const match = req.handshake.query.cookies.match(new RegExp('(^| )' + `${type}_token` + '=([^;]+)'));
-      if (match) return match[2];
-    }
-    let token = null;
-    let decoded;
-    if (req) {
-      token = 'cookies' in req ? req.cookies[`${type}_token`] : getCookie(type)
-    }
-    decoded = this.jwtService.decode(token);
+    // const getCookie = (type) => {
+    //   const match = req.handshake.query.cookies.match(new RegExp('(^| )' + `${type}_token` + '=([^;]+)'));
+    //   if (match) return match[2];
+    // }
+    // let token = null;
+    // let decoded;
+    // if (req) {
+    //   token = 'cookies' in req ? req.cookies[`${type}_token`] : getCookie(type)
+    // }
+
+    const token = 'headers' in req ? req.headers.authorization : req.handshake.headers.authorization;
+    const decoded = this.jwtService.decode(token);
+    if (typeof decoded === "string") return
     return { token, decoded };
   }
 }

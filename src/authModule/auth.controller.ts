@@ -1,16 +1,8 @@
-import {
-  Controller,
-  Request,
-  Post,
-  UseGuards,
-  Get,
-  Req,
-  Res, Query, ForbiddenException,
-} from '@nestjs/common';
-import { UsersService } from 'src/usersModule/users.service';
-import { AuthService } from './auth.service';
-import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
-import { LocalAuthGuard } from './guards/local-auth.guard';
+import {Controller, Get, Post, Req, Request, Res, UseGuards,} from '@nestjs/common';
+import {UsersService} from 'src/usersModule/users.service';
+import {AuthService} from './auth.service';
+import {JwtRefreshAuthGuard} from './guards/jwt-refresh-auth.guard';
+import {LocalAuthGuard} from './guards/local-auth.guard';
 import {JwtAuthGuard} from "./guards/jwt-auth.guard";
 import {jwtConstants} from "./constants";
 
@@ -37,9 +29,15 @@ export class AuthController {
     res.cookie('refresh_token', refresh_token, {
       maxAge: jwtConstants.refreshExpire
     });
-    const result = { id, email, username, access_token, access_token_expire: jwtConstants.accessExpire,  refresh_token, refresh_token_expire: jwtConstants.refreshExpire }
-    console.log('login_res', res)
-    return result;
+    return {
+      id,
+      email,
+      username,
+      access_token,
+      access_token_expire: jwtConstants.accessExpire,
+      refresh_token,
+      refresh_token_expire: jwtConstants.refreshExpire
+    };
   }
 
   @UseGuards(JwtRefreshAuthGuard)

@@ -57,8 +57,7 @@ export class usersController {
       return { path: file.path, result: res };
     }
   }
-
-  @UseGuards(JwtAuthGuard)
+  
   @Get('/UsersImages/:filename')
   async getFile(
     @Param('filename') filename: string,
