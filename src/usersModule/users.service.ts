@@ -93,7 +93,8 @@ export class UsersService {
     const user = await this.getUserById(id);
     if (user.imagePath) {
       try {
-        return await this.usersRepository.update({ id }, { imagePath });
+        const updateRes = await this.usersRepository.update({ id }, { imagePath });
+        console.log(updateRes)
       }
       catch (error) {
          return 'smthWrong'
