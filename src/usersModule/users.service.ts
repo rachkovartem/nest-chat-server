@@ -93,7 +93,6 @@ export class UsersService {
     const user = await this.getUserById(id);
     if (user.imagePath) {
       try {
-        fs.unlinkSync(user.imagePath);
         return await this.usersRepository.update({ id }, { imagePath });
       }
       catch (error) {
