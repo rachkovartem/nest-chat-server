@@ -17,7 +17,7 @@ import { UsersService } from './users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../authModule/guards/jwt-auth.guard';
 import {ConfigService} from "@nestjs/config";
-import * as fs from "fs";
+const fs = require('fs');
 const ImageKit =  require ("imagekit");
 
 @Controller()
@@ -64,7 +64,6 @@ export class usersController {
      })
 
     if (file) {
-      const fs = require('fs');
       const base64 = fs.readFileSync(file.path, {encoding: 'base64'});
 
       const imagekitRes = await imagekit.upload({

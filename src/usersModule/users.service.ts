@@ -90,8 +90,6 @@ export class UsersService {
   }
 
   async updateUserImage(id: string, imagePath: string) {
-    const user = await this.getUserById(id);
-    if (user.imagePath) {
       try {
         const updateRes = await this.usersRepository.update({ id }, { imagePath });
         console.log(updateRes)
@@ -99,7 +97,6 @@ export class UsersService {
       catch (error) {
          return 'smthWrong'
       }
-    }
   }
 
   async removeFriend(idUser: string, idFriend: string) {
