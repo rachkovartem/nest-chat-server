@@ -16,11 +16,16 @@ import { CreateUserDto } from './createUser.dto';
 import { UsersService } from './users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../authModule/guards/jwt-auth.guard';
-import {User} from "./user.entity";
+import {ConfigService} from "@nestjs/config";
+import * as fs from "fs";
+const ImageKit =  require ("imagekit");
 
 @Controller()
 export class usersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private configService: ConfigService,
+  ) {}
 
   @Post('/register')
   createItem(@Body() user: CreateUserDto) {
@@ -46,16 +51,33 @@ export class usersController {
       return await this.usersService.removeFriend(idUser, idFriend)
   }
 
+
   @UseGuards(JwtAuthGuard)
   @Post('/uploadImage')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@Req() req, @UploadedFile() file: Express.Multer.File) {
+    const imagekit = new ImageKit(
+     {
+        publicKey : this.configService.get<string>('PUBLIC_KEY'),
+        privateKey : this.configService.get<string>('PRIVATE_KEY'),
+        urlEndpoint : this.configService.get<string>('IMAGEKIT_URL')
+     })
+
     if (file) {
+      const fs = require('fs');
+      const base64 = fs.readFileSync(file.path, {encoding: 'base64'});
+
+      const imagekitRes = await imagekit.upload({
+        file: base64,
+        fileName: file.filename
+      });
+
       const res = await this.usersService.updateUserImage(
         req.user.id,
-        file.path,
+        imagekitRes.url
+        // file.path,
       );
-      return { path: file.path, result: res };
+      return { path: imagekitRes.url, result: res };
     }
   }
 

@@ -1,6 +1,4 @@
 import { ConnectionOptions } from 'typeorm';
-console.log(process.env.npm_lifecycle_event)
-console.log(process.env.DATABASE_URL)
 
 const config: ConnectionOptions = process.env.DATABASE_URL ? {
   type: 'postgres',

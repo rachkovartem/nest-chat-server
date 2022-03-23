@@ -15,9 +15,11 @@ import { RoomsModule } from './roomsModule/rooms.module';
 import { FriendRequest } from './usersModule/friendRequest.entity';
 import {Room} from "./roomsModule/rooms.entity";
 import {Message} from "./messagesModule/messages.entity";
+import {ConfigModule} from "@nestjs/config";
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     TypeOrmModule.forRoot(config),
     AuthModule,
     UsersModule,
