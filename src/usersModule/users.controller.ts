@@ -29,6 +29,7 @@ export class usersController {
 
   @Get('/getUserById')
   getUserById(@Req() req, @Query('id') id) {
+    console.log(req.connection.remoteAddress)
     if (
       req.connection.remoteAddress === '::ffff:127.0.0.1' ||
       req.connection.remoteAddress === '::1'
@@ -57,7 +58,7 @@ export class usersController {
       return { path: file.path, result: res };
     }
   }
-  
+
   @Get('/UsersImages/:filename')
   async getFile(
     @Param('filename') filename: string,
