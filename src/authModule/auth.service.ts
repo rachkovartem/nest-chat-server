@@ -66,7 +66,7 @@ export class AuthService {
     // if (req) {
     //   token = 'cookies' in req ? req.cookies[`${type}_token`] : getCookie(type)
     // }
-
+    console.log('headers' in req ? req.headers : req.handshake.headers)
     const token = 'headers' in req ? req.headers.authorization : req.handshake.headers.authorization;
     const decoded = this.jwtService.decode(token);
     if (typeof decoded === "string") return
