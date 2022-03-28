@@ -76,6 +76,9 @@ export class usersController {
         imagekitRes.url,
         imagekit
       );
+      fs.unlink(file.path, (err) => {
+        if (err) throw err;
+      });
       return { path: imagekitRes.url, result: res };
     }
   }
