@@ -153,8 +153,8 @@ export class RoomsService {
       return newRoom
     });
     return rooms.sort((a: any, b: any) => {
-      const aDate = lastMessages[a.roomId].sendingDate || 0;
-      const bDate = lastMessages[b.roomId].sendingDate || 0;
+      const aDate = lastMessages[a.roomId]?.sendingDate || 0;
+      const bDate = lastMessages[b.roomId]?.sendingDate || 0;
       if (b.roomId in lastMessages) {
         return (Number(bDate) - Number(aDate))
       } else {return 0}

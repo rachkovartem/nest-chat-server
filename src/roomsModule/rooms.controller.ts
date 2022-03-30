@@ -45,7 +45,8 @@ export class roomsController {
     const headers = 'headers' in req ? req.headers : req.handshake.headers
     if (
       headers.host === 'localhost:8080' ||
-      headers.host === 'nestchat-server.herokuapp.com'
+      headers.host === 'nestchat-server.herokuapp.com' ||
+      headers.host === '192.168.100.22:8080'
     ) {
       return await this.roomsService.getRoomInfo(id);
     }
