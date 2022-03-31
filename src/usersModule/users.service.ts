@@ -69,6 +69,7 @@ export class UsersService {
 
   async getUserById(id: string) {
     const user = await this.usersRepository.findOne({ id });
+    if (!user) return 'user not found'
     const objFriends = await Promise.all(user.friends.map(async id => await this.usersRepository.findOne({ id })));
     const groupRooms = await Promise.all(user.groupRooms.map(async roomId => {
       const groupChat = await this.roomsRepository.findOne({ roomId });
