@@ -121,7 +121,7 @@ export class UsersService {
       await this.roomsRepository.delete({roomId: room.roomId});
     }
     const userAfterDeleting = await this.getUserById(idUser);
-      if (resUser.affected === 1 && resFriend.affected === 1) {
+      if (resUser.affected === 1 && resFriend.affected === 1 && userAfterDeleting !== 'user not found') {
         return {text: 'friendDeleted', objFriends: userAfterDeleting.objFriends}
       } else {
         return 'smthWrong'
@@ -218,6 +218,7 @@ export class UsersService {
     );
     if (resDelete.affected === 1 && resUpdateUser.affected === 1 && resUpdateFriend.affected === 1) {
       const user =  await this.getUserById(idUser);
+      if (user === 'user not found') return 'smthWrong'
       const reqs = await this.getRequests(user.friendsRequests, idUser);
       return {objFriends: user.objFriends, ...reqs}
     } else return 'smthWrong'
@@ -245,6 +246,7 @@ export class UsersService {
     );
     if (resDelete.affected === 1 && resUpdateUser.affected === 1 && resUpdateFriend.affected === 1) {
       const user =  await this.getUserById(idUser);
+      if (user === 'user not found') return 'smthWrong'
       const reqs = await this.getRequests(user.friendsRequests, idUser);
       return { ...reqs };
     } else {
