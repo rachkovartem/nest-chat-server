@@ -65,7 +65,9 @@ export class AuthController {
         req,
         type,
       ).decoded;
-      const { username, email } = await this.userService.getUserById(id);
+      const user = await this.userService.getUserById(id);
+      if (user === 'user not found') return
+      const { username, email } = user
       return { id, username, email };
     };
     if (accessToken) {

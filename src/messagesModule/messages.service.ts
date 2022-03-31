@@ -33,6 +33,7 @@ export class MessagesService {
 
   async getLastMessages(userId: string) {
     const user = await this.usersService.getUserById(userId);
+    if (user === 'user not found') return 'smthWrong'
     const lastMessages = {};
     await Promise.all(user.groupRooms.map(async id => {
       const messages = await this.getAllRoomMessages(id);

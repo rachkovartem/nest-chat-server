@@ -37,6 +37,7 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   async connection(client: Socket) {
     const clientId = client.handshake.query.id;
     const user = await this.usersService.getUserById(clientId.toString());
+    if (user === 'user not found') return
     const friendsOnline = user.friends.filter(friendId => this.online.some(id => id === friendId));
     this.server.to(clientId).emit('friends:online', friendsOnline);
     user.groupRooms.forEach(id => client.join(id))
@@ -52,6 +53,7 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   async handleMessage(client: Socket, payload: messagePayloadDto) {
     const result = await this.messagesService.createMessage(payload);
     const sender = await this.usersService.getUserById(result.senderId);
+    if (sender === 'user not found') return
     this.server.to(payload.roomId).emit(`messages:add`, [{...result, senderAvatar: sender.imagePath}]);
   }
 
@@ -77,6 +79,7 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     const clientId = client.handshake.query.id;
     client.join(clientId);
     const user = await this.usersService.getUserById(clientId.toString());
+    if (user === 'user not found') return
     const friendsOnline = user.friends.filter(friendId => this.online.some(id => id === friendId));
     this.server.to(clientId).emit('friends:online', friendsOnline);
   }
@@ -90,6 +93,7 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     const clientId = client.handshake.query.id;
     this.logger.log(`Client disconnected: ${clientId}`);
     const user = await this.usersService.getUserById(clientId.toString());
+    if (user === 'user not found') return
     if (this.online.includes(clientId)) {
       this.online.splice(this.online.indexOf(clientId), 1);
     }
@@ -101,6 +105,7 @@ export class MessagesGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     const clientId = client.handshake.query.id;
     client.join(clientId);
     const user = await this.usersService.getUserById(clientId.toString());
+    if (user === 'user not found') return
     this.logger.log(`Client connected: ${clientId}`);
     if (!this.online.includes(clientId)) {
       this.online.push(clientId);

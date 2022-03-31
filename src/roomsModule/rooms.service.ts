@@ -54,6 +54,7 @@ export class RoomsService {
         await this.usersRepository.update({id: user.id}, { groupRooms: newRooms})
       }))
       const userAfterUpdate = await this.usersService.getUserById(idUser);
+      if (userAfterUpdate === 'user not found') return 'smthWrong'
       return {roomRes, fullGroupRooms: userAfterUpdate.fullGroupRooms};
     } else if (res.length === 1 && !res[0].groupRoom) {
       return res[0]
@@ -95,6 +96,7 @@ export class RoomsService {
 
   async getLastMessages(userId: string) {
     const user = await this.usersService.getUserById(userId);
+    if (user === 'user not found') return 'smthWrong'
     const lastMessages = {};
     await Promise.all(user.groupRooms.map(async id => {
       const messages = await this.messagesService.getAllRoomMessages(id);
