@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('rooms')
+@Entity('push')
 export class Push {
   @PrimaryGeneratedColumn('uuid')
   id: string;
