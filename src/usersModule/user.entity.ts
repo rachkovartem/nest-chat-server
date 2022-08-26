@@ -1,5 +1,12 @@
-import {Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable} from 'typeorm';
-import { FriendRequest } from './friendRequest.entity'
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
+import { FriendRequest } from './friendRequest.entity';
 
 @Entity('users')
 export class User {

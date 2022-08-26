@@ -1,14 +1,14 @@
-import {Injectable} from '@nestjs/common';
-import {CreateUserDto} from './createUser.dto';
-import {InjectRepository} from '@nestjs/typeorm';
-import {ILike, Repository} from 'typeorm';
-import {User as UserEntity} from './user.entity';
-import {FriendRequest as FriendRequestEntity} from './friendRequest.entity';
+import { Injectable } from '@nestjs/common';
+import { CreateUserDto } from './createUser.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ILike, Repository } from 'typeorm';
+import { User as UserEntity } from './user.entity';
+import { FriendRequest as FriendRequestEntity } from './friendRequest.entity';
 import * as bcrypt from 'bcrypt';
-import {Room as RoomsEntity} from "../roomsModule/rooms.entity";
-import {Message as MessageEntity} from "../messagesModule/messages.entity";
-import * as fs from "fs";
-import ImageKit from "imagekit";
+import { Room as RoomsEntity } from '../roomsModule/rooms.entity';
+import { Message as MessageEntity } from '../messagesModule/messages.entity';
+import * as fs from 'fs';
+import ImageKit from 'imagekit';
 
 export type User = any;
 
@@ -69,21 +69,31 @@ export class UsersService {
 
   async getUserById(id: string) {
     const user = await this.usersRepository.findOne({ id });
-    if (!user) return 'user not found'
-    const objFriends = await Promise.all(user.friends.map(async id => await this.usersRepository.findOne({ id })));
-    const groupRooms = await Promise.all(user.groupRooms.map(async roomId => {
-      const groupChat = await this.roomsRepository.findOne({ roomId });
-      const groupChatUsers = await Promise.all(groupChat.participants.split(',').map(async (id) => {
-        return await this.usersRepository.findOne({id});
-      }))
-      return { ...groupChat, fullParticipants: groupChatUsers };
-    }))
+    if (!user) return 'user not found';
+    const objFriends = await Promise.all(
+      user.friends.map(
+        async (id) => await this.usersRepository.findOne({ id }),
+      ),
+    );
+    const groupRooms = await Promise.all(
+      user.groupRooms.map(async (roomId) => {
+        const groupChat = await this.roomsRepository.findOne({ roomId });
+        const groupChatUsers = await Promise.all(
+          groupChat.participants.split(',').map(async (id) => {
+            return await this.usersRepository.findOne({ id });
+          }),
+        );
+        return { ...groupChat, fullParticipants: groupChatUsers };
+      }),
+    );
     const friendsRoomsIds = {};
-    await Promise.all(user.friends.map(async friendId => {
-      const participants = [friendId, id].sort().toString();
-      const room = await this.roomsRepository.findOne({participants})
-      friendsRoomsIds[friendId] = room ? room.roomId : null
-    }))
+    await Promise.all(
+      user.friends.map(async (friendId) => {
+        const participants = [friendId, id].sort().toString();
+        const room = await this.roomsRepository.findOne({ participants });
+        friendsRoomsIds[friendId] = room ? room.roomId : null;
+      }),
+    );
     return { ...user, objFriends, fullGroupRooms: groupRooms, friendsRoomsIds };
   }
 
@@ -92,40 +102,51 @@ export class UsersService {
   }
 
   async updateUserImage(id: string, imagePath: string, imagekit: ImageKit) {
-      try {
-        const updateRes = await this.usersRepository.update({ id }, { imagePath });
-        console.log(updateRes)
-      }
-      catch (error) {
-         return 'smthWrong'
-      }
+    try {
+      const updateRes = await this.usersRepository.update(
+        { id },
+        { imagePath },
+      );
+      console.log(updateRes);
+    } catch (error) {
+      return 'smthWrong';
+    }
   }
 
   async removeFriend(idUser: string, idFriend: string) {
-    const user = await this.usersRepository.findOne({ id: idUser } );
-    const friend = await this.usersRepository.findOne({ id: idFriend } );
-    const resUser = await this.usersRepository
-      .update(
-        { id: idUser },
-        { friends: user.friends.filter(id => id !== idFriend) }
-      );
-    const resFriend = await this.usersRepository
-      .update(
-        { id: idFriend },
-        { friends: friend.friends.filter(id => id !== idUser) }
-      );
-    const room = await this.roomsRepository.findOne({participants: [idUser, idFriend].sort().toString()});
+    const user = await this.usersRepository.findOne({ id: idUser });
+    const friend = await this.usersRepository.findOne({ id: idFriend });
+    const resUser = await this.usersRepository.update(
+      { id: idUser },
+      { friends: user.friends.filter((id) => id !== idFriend) },
+    );
+    const resFriend = await this.usersRepository.update(
+      { id: idFriend },
+      { friends: friend.friends.filter((id) => id !== idUser) },
+    );
+    const room = await this.roomsRepository.findOne({
+      participants: [idUser, idFriend].sort().toString(),
+    });
     if (room) {
-      const messages = await this.messagesRepository.find({roomId: room.roomId});
+      const messages = await this.messagesRepository.find({
+        roomId: room.roomId,
+      });
       await this.messagesRepository.remove(messages);
-      await this.roomsRepository.delete({roomId: room.roomId});
+      await this.roomsRepository.delete({ roomId: room.roomId });
     }
     const userAfterDeleting = await this.getUserById(idUser);
-      if (resUser.affected === 1 && resFriend.affected === 1 && userAfterDeleting !== 'user not found') {
-        return {text: 'friendDeleted', objFriends: userAfterDeleting.objFriends}
-      } else {
-        return 'smthWrong'
-      }
+    if (
+      resUser.affected === 1 &&
+      resFriend.affected === 1 &&
+      userAfterDeleting !== 'user not found'
+    ) {
+      return {
+        text: 'friendDeleted',
+        objFriends: userAfterDeleting.objFriends,
+      };
+    } else {
+      return 'smthWrong';
+    }
   }
 
   async friendRequest(idSender: string, idRecipient: string) {
@@ -137,8 +158,8 @@ export class UsersService {
       userSenderId: idRecipient,
       userRecipientId: idSender,
     });
-    const sender = await this.usersRepository.findOne({id: idSender});
-    const res3 = sender.friends.some(id => id === idRecipient);
+    const sender = await this.usersRepository.findOne({ id: idSender });
+    const res3 = sender.friends.some((id) => id === idRecipient);
     if (res1.length === 0 && res2.length === 0 && !res3) {
       const newReq = this.friendRequestRepository.create({
         userSenderId: idSender,
@@ -157,14 +178,17 @@ export class UsersService {
         { friendsRequests: [...recipient.friendsRequests, res.id] },
       );
       const senderResult = await this.usersRepository.findOne({ id: idSender });
-      const reqs = await this.getRequests(senderResult.friendsRequests, idSender);
-      return {text: 'reqSended', outReqs: reqs.outReqs};
+      const reqs = await this.getRequests(
+        senderResult.friendsRequests,
+        idSender,
+      );
+      return { text: 'reqSended', outReqs: reqs.outReqs };
     } else if (res1.length > 0) {
       return 'requestExist';
     } else if (res2.length > 0) {
       return 'userAlreadySend';
     } else if (res3) {
-      return 'userAlreadyFriend'
+      return 'userAlreadyFriend';
     }
   }
 
@@ -216,12 +240,16 @@ export class UsersService {
         ),
       },
     );
-    if (resDelete.affected === 1 && resUpdateUser.affected === 1 && resUpdateFriend.affected === 1) {
-      const user =  await this.getUserById(idUser);
-      if (user === 'user not found') return 'smthWrong'
+    if (
+      resDelete.affected === 1 &&
+      resUpdateUser.affected === 1 &&
+      resUpdateFriend.affected === 1
+    ) {
+      const user = await this.getUserById(idUser);
+      if (user === 'user not found') return 'smthWrong';
       const reqs = await this.getRequests(user.friendsRequests, idUser);
-      return {objFriends: user.objFriends, ...reqs}
-    } else return 'smthWrong'
+      return { objFriends: user.objFriends, ...reqs };
+    } else return 'smthWrong';
   }
 
   async rejectFriendReq(idUser: string, idFriend: string, idReq: string) {
@@ -244,13 +272,17 @@ export class UsersService {
         ),
       },
     );
-    if (resDelete.affected === 1 && resUpdateUser.affected === 1 && resUpdateFriend.affected === 1) {
-      const user =  await this.getUserById(idUser);
-      if (user === 'user not found') return 'smthWrong'
+    if (
+      resDelete.affected === 1 &&
+      resUpdateUser.affected === 1 &&
+      resUpdateFriend.affected === 1
+    ) {
+      const user = await this.getUserById(idUser);
+      if (user === 'user not found') return 'smthWrong';
       const reqs = await this.getRequests(user.friendsRequests, idUser);
       return { ...reqs };
     } else {
-      return 'smthWrong'
+      return 'smthWrong';
     }
   }
 
@@ -261,6 +293,6 @@ export class UsersService {
         { email: ILike(`%${option}%`) },
       ],
     });
-    return res.filter(item => item.id !== id);
+    return res.filter((item) => item.id !== id);
   }
 }

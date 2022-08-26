@@ -1,10 +1,18 @@
-import {Controller, Get, Post, Req, Request, Res, UseGuards,} from '@nestjs/common';
-import {UsersService} from 'src/usersModule/users.service';
-import {AuthService} from './auth.service';
-import {JwtRefreshAuthGuard} from './guards/jwt-refresh-auth.guard';
-import {LocalAuthGuard} from './guards/local-auth.guard';
-import {JwtAuthGuard} from "./guards/jwt-auth.guard";
-import {jwtConstants} from "./constants";
+import {
+  Controller,
+  Get,
+  Post,
+  Req,
+  Request,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { UsersService } from 'src/usersModule/users.service';
+import { AuthService } from './auth.service';
+import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { jwtConstants } from './constants';
 
 @Controller()
 export class AuthController {
@@ -24,10 +32,10 @@ export class AuthController {
     const { access_token, refresh_token, id, email, username } =
       await this.authService.login(req.body);
     res.cookie('access_token', access_token, {
-      maxAge: jwtConstants.accessExpire
+      maxAge: jwtConstants.accessExpire,
     });
     res.cookie('refresh_token', refresh_token, {
-      maxAge: jwtConstants.refreshExpire
+      maxAge: jwtConstants.refreshExpire,
     });
     return {
       id,
@@ -36,7 +44,7 @@ export class AuthController {
       access_token,
       access_token_expire: jwtConstants.accessExpire,
       refresh_token,
-      refresh_token_expire: jwtConstants.refreshExpire
+      refresh_token_expire: jwtConstants.refreshExpire,
     };
   }
 
@@ -46,11 +54,10 @@ export class AuthController {
     const user = this.authService.cookieExtractor(req, 'refresh').decoded;
     const { access_token } = await this.authService.refreshAccessToken(user);
     res.cookie('access_token', access_token, {
-      maxAge: jwtConstants.accessExpire
+      maxAge: jwtConstants.accessExpire,
     });
     return { access_token };
   }
-
 
   @UseGuards(JwtAuthGuard)
   @Get('/check')
@@ -61,13 +68,10 @@ export class AuthController {
       return false;
     }
     const returnRes = async (type) => {
-      const { id } = this.authService.cookieExtractor(
-        req,
-        type,
-      ).decoded;
+      const { id } = this.authService.cookieExtractor(req, type).decoded;
       const user = await this.userService.getUserById(id);
-      if (user === 'user not found') return
-      const { username, email } = user
+      if (user === 'user not found') return;
+      const { username, email } = user;
       return { id, username, email };
     };
     if (accessToken) {

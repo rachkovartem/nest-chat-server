@@ -1,7 +1,14 @@
-import {Body, Controller, ForbiddenException, Get, Post, Req, UseGuards} from '@nestjs/common';
-import {RoomsService} from "./rooms.service";
-import {JwtAuthGuard} from "../authModule/guards/jwt-auth.guard";
-
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { RoomsService } from './rooms.service';
+import { JwtAuthGuard } from '../authModule/guards/jwt-auth.guard';
 
 @Controller()
 export class roomsController {
@@ -11,7 +18,7 @@ export class roomsController {
   @Post('/rooms/createRoom')
   async createRoom(@Body('participants') participants) {
     const res = await this.roomsService.createRoom(participants);
-    return res
+    return res;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -28,21 +35,19 @@ export class roomsController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/rooms/getLastMessages')
-  async getLastMessages(
-    @Body('userId') userId) {
+  async getLastMessages(@Body('userId') userId) {
     return await this.roomsService.getLastMessages(userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('/rooms/getAllUserRooms')
-  async getAllUserRooms(
-    @Body('userId') userId) {
+  async getAllUserRooms(@Body('userId') userId) {
     return await this.roomsService.getAllUserRooms(userId);
   }
 
   @Post('/rooms/getRoomInfo')
   async getRoomInfo(@Req() req, @Body('id') id) {
-    const headers = 'headers' in req ? req.headers : req.handshake.headers
+    const headers = 'headers' in req ? req.headers : req.handshake.headers;
     if (
       headers.host === 'localhost:8080' ||
       headers.host === 'nestchat-server.herokuapp.com' ||

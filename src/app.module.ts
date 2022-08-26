@@ -13,11 +13,11 @@ import config from './ormconfig';
 import { User } from './usersModule/user.entity';
 import { RoomsModule } from './roomsModule/rooms.module';
 import { FriendRequest } from './usersModule/friendRequest.entity';
-import {Room} from "./roomsModule/rooms.entity";
-import {Message} from "./messagesModule/messages.entity";
-import {ConfigModule} from "@nestjs/config";
-import {PushModule} from "./pushModule/push.module";
-import {Push} from "./pushModule/push.entity";
+import { Room } from './roomsModule/rooms.entity';
+import { Message } from './messagesModule/messages.entity';
+import { ConfigModule } from '@nestjs/config';
+import { PushModule } from './pushModule/push.module';
+import { Push } from './pushModule/push.entity';
 
 @Module({
   imports: [
@@ -36,10 +36,6 @@ import {Push} from "./pushModule/push.entity";
     TypeOrmModule.forFeature([User, FriendRequest, Room, Message, Push]),
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    AuthService,
-    UsersService
-  ],
+  providers: [AppService, AuthService, UsersService],
 })
 export class AppModule {}

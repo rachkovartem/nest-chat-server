@@ -39,7 +39,7 @@ export class AuthService {
         ),
         email: user.email,
         id: user.id,
-        username: user.username
+        username: user.username,
       };
     } else {
       return null;
@@ -66,9 +66,12 @@ export class AuthService {
     // if (req) {
     //   token = 'cookies' in req ? req.cookies[`${type}_token`] : getCookie(type)
     // }
-    const token = 'headers' in req ? req.headers.authorization : req.handshake.headers.authorization;
+    const token =
+      'headers' in req
+        ? req.headers.authorization
+        : req.handshake.headers.authorization;
     const decoded = this.jwtService.decode(token);
-    if (typeof decoded === "string") return
+    if (typeof decoded === 'string') return;
     return { token, decoded };
   }
 }

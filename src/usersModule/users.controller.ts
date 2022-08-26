@@ -16,9 +16,9 @@ import { CreateUserDto } from './createUser.dto';
 import { UsersService } from './users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../authModule/guards/jwt-auth.guard';
-import {ConfigService} from "@nestjs/config";
+import { ConfigService } from '@nestjs/config';
 const fs = require('fs');
-const ImageKit =  require ("imagekit");
+const ImageKit = require('imagekit');
 
 @Controller()
 export class usersController {
@@ -34,7 +34,7 @@ export class usersController {
 
   @Get('/getUserById')
   getUserById(@Req() req, @Query('id') id) {
-    const headers = 'headers' in req ? req.headers : req.handshake.headers
+    const headers = 'headers' in req ? req.headers : req.handshake.headers;
     if (
       headers.host === 'localhost:8080' ||
       headers.host === 'nestchat-server.herokuapp.com' ||
@@ -48,34 +48,35 @@ export class usersController {
   @UseGuards(JwtAuthGuard)
   @Post('/removeFriend')
   @UseInterceptors(FileInterceptor('file'))
-  async removeFriend(@Body('idUser') idUser: string, @Body('idFriend') idFriend: string,) {
-      return await this.usersService.removeFriend(idUser, idFriend)
+  async removeFriend(
+    @Body('idUser') idUser: string,
+    @Body('idFriend') idFriend: string,
+  ) {
+    return await this.usersService.removeFriend(idUser, idFriend);
   }
-
 
   @UseGuards(JwtAuthGuard)
   @Post('/uploadImage')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@Req() req, @UploadedFile() file: Express.Multer.File) {
-    const imagekit = new ImageKit(
-     {
-        publicKey : this.configService.get<string>('PUBLIC_KEY'),
-        privateKey : this.configService.get<string>('PRIVATE_KEY'),
-        urlEndpoint : this.configService.get<string>('IMAGEKIT_URL')
-     })
+    const imagekit = new ImageKit({
+      publicKey: this.configService.get<string>('PUBLIC_KEY'),
+      privateKey: this.configService.get<string>('PRIVATE_KEY'),
+      urlEndpoint: this.configService.get<string>('IMAGEKIT_URL'),
+    });
 
     if (file) {
-      const base64 = fs.readFileSync(file.path, {encoding: 'base64'});
+      const base64 = fs.readFileSync(file.path, { encoding: 'base64' });
 
       const imagekitRes = await imagekit.upload({
         file: base64,
-        fileName: file.filename
+        fileName: file.filename,
       });
 
       const res = await this.usersService.updateUserImage(
         req.user.id,
         imagekitRes.url,
-        imagekit
+        imagekit,
       );
       fs.unlink(file.path, (err) => {
         if (err) throw err;
@@ -128,7 +129,7 @@ export class usersController {
     @Body('userId') userId: string,
     @Req() req,
   ) {
-    const headers = 'headers' in req ? req.headers : req.handshake.headers
+    const headers = 'headers' in req ? req.headers : req.handshake.headers;
     if (
       headers.host === 'localhost:8080' ||
       headers.host === 'nestchat-server.herokuapp.com' ||
@@ -142,14 +143,14 @@ export class usersController {
   @Get('/findUser')
   async findUser(@Query('option') option: string, @Query('id') id: string) {
     if (option.length === 0) {
-      return []
+      return [];
     }
     return await this.usersService.findUser(option, id);
   }
 
   @Get('/allUsers')
   getAllUsers(@Req() req) {
-    const headers = 'headers' in req ? req.headers : req.handshake.headers
+    const headers = 'headers' in req ? req.headers : req.handshake.headers;
     if (
       headers.host === 'localhost:8080' ||
       headers.host === 'nestchat-server.herokuapp.com' ||
